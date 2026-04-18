@@ -7,4 +7,9 @@ add_executable(ListScheduling main.cpp
         Task.cpp
         Task.h
         TaskArray.cpp
-        TaskArray.h)
+        TaskArray.h
+        TaskScheduler.cpp
+        TaskScheduler.h
+        utility.cpp
+        Cpu.cpp
+        Cpu.h)

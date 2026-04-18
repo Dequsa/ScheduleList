@@ -9,18 +9,18 @@ void TaskArray::Resize() {
     size_t new_capacity = capacity == 0 ? 1 : capacity * 2;
 
     // copy all the data to the new array
-    Task* new_data = new Task[new_capacity];
+    Task *new_data = new Task[new_capacity];
     for (size_t i = 0; i < size; i++) {
         new_data[i] = data[i];
     }
     delete[] data;
-    
+
     // set the new data and capacity
     data = new_data;
     capacity = new_capacity;
 }
 
-void TaskArray::add(const Task &task) {
+void TaskArray::PushBack(const Task &task) {
     if (size >= capacity) {
         Resize();
     }
@@ -37,4 +37,22 @@ void TaskArray::Delete(const size_t index) {
         data[i] = data[i + 1];
     }
     size--;
+}
+
+void TaskArray::Insert(const size_t index, const Task &task) {
+    if (index > size) {
+        return;
+    }
+
+    if (size >= capacity) {
+        Resize();
+    }
+
+    // shift all the elements after the index to the right
+    for (size_t i = size; i > index; i--) {
+        data[i] = data[i - 1];
+    }
+
+    data[index] = task;
+    size++;
 }

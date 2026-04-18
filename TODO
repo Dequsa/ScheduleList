@@ -1,0 +1,63 @@
+1. Data Management and State Tracking
+
+    Task Tracking: You need a data structure to maintain a sequence of tasks. Each task must hold two pieces of information: its unique ID and its execution length.
+
+    ID Generation: Keep a global counter of how many tasks have been created over the lifetime of the program. Even if tasks are deleted, the next new task ID should continue incrementing from this historical total.
+
+    Time Precision: Use floating-point numbers (double) for all calculations involving task lengths and completion times to avoid rounding errors.
+
+2. Handling Dynamic Inputs
+
+Your program must continuously read and react to commands that modify the list of tasks or request a schedule to be generated.
+
+    Initialization: Read the initial number of tasks and their lengths, assigning them IDs 1 to n.
+
+    Add Task (+ k p): Create a new task with length p and ID x+1 (where x is the total number of tasks ever created). Insert this task exactly at position k in your current list, shifting the rest down.
+
+    Remove Task (- i): Search your list for the task with the specific ID i and remove it, shifting the remaining tasks to close the gap.
+
+3. Implementing the Scheduling Algorithms
+
+Whenever a command X m is called (where X is the algorithm and m is the number of machines), you must generate a schedule without permanently modifying your main task list.
+
+    Command B (Basic): * Iterate through your current list in the exact order it exists.
+
+        Assign each task to the processor that is currently available the earliest.
+
+    Command L (Longest Processing Time): * Create a temporary copy of your list and sort it from longest execution time to shortest.
+
+        If lengths are identical, use the task ID to break the tie (smaller ID first).
+
+        Assign tasks to the earliest available processor.
+
+    Command S (Shortest Processing Time - Grouped): * Sort the tasks by non-increasing execution time.
+
+        Process the tasks in chunks equal to the number of processors (m).
+
+        Deal out one task from the chunk to each processor.
+
+        Crucial step: Once all tasks are assigned to their respective machines, re-sort the schedule within each machine from shortest execution time to longest execution time.
+
+    Command M (McNaughton’s Preemptive): * Calculate the target maximum completion time (Cmax​). This is the larger of two values: the total sum of all task lengths divided by m, or the single longest task length.
+
+        Start packing tasks onto the first machine.
+
+        If adding a task exceeds the target Cmax​, "cut" the task. Assign the first piece to finish exactly at Cmax​ on the current machine, and place the remaining piece on the next machine starting at time 0.
+
+    Command A (Optimal Search): * Write a brute-force or dynamic programming function to test all possible combinations of assigning the current tasks to m machines.
+
+        Find and return the single lowest possible Cmax​. (The input size for this command will be kept intentionally small).
+
+4. Calculating Metrics and Formatting Output
+
+For every scheduling command executed (except A), you must calculate and print the following metrics before printing the machine schedules:
+
+    Cmax​: The time when the very last task finishes across all machines.
+
+    ΣCi​: The sum of the completion times for every individual task. (Note: For algorithm M, if a task is split, only the time of the final completed segment counts toward this sum).
+
+    Machine Timelines: Print the timeline for each machine in the exact format: M[number]: ( C[task ID] = completion time ).
+
+        If a task is interrupted (only applies to M), label it with P instead of C (e.g., P[task ID] = interruption time).
+
+    For Command A only: Print strictly the calculated optimal time formatted as Copt: [value].
