@@ -5,6 +5,7 @@
 #ifndef LISTSCHEDULING_INPUTHANDLER_H
 #define LISTSCHEDULING_INPUTHANDLER_H
 #include "TaskArray.h"
+#include "CPU.h"
 #pragma once
 class TaskScheduler {
 
@@ -17,6 +18,10 @@ class TaskScheduler {
     size_t GetTaskCount() const;
 
     double GetTaskLength() const;
+
+    void SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc[]) const;
+
+    double BestCMax(const TaskArray &task_array) const;
 
     void BasicListScheduling(const TaskArray &task_array) const;
 

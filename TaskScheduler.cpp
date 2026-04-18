@@ -3,7 +3,6 @@
 //
 
 #include "TaskScheduler.h"
-#include "CPU.h"
 #include "utility.h"
 #include <iostream>
 
@@ -56,11 +55,11 @@ double TaskScheduler::GetTaskLength() const {
     return task_length;
 }
 
-void TaskScheduler::BasicListScheduling(const TaskArray &task_array) const {
-    // no sorting just run the tasks in the order they were added
-    int cpu_id = 0;
-    auto pc = new CPU[cpu_count_];
+void TaskScheduler::BestCMax(const TaskArray &task_array) const {
 
+}
+
+void TaskScheduler::SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc[]) const {
     for (int i = 0; i < task_array.GetSize(); i++) {
         int min_idx = cpu_count_ - 1;
         for (int j = 0; j < cpu_count_; j++) {
@@ -86,6 +85,17 @@ void TaskScheduler::BasicListScheduling(const TaskArray &task_array) const {
     for (int i = 0; i < cpu_count_; i++) {
         cout << pc[i] << '\n';
     }
+}
+
+void TaskScheduler::BasicListScheduling(const TaskArray &task_array) const {
+    // no sorting just run the tasks in the order they were added
+    const auto pc = new CPU[cpu_count_];
+
+    for (int i = 0; i < cpu_count_; i++) {
+        pc[i].SetId(i);
+    }
+
+    SchedulePrintTasksToCPUs(task_array, pc);
 
     delete[] pc;
 }

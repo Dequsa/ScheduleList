@@ -36,6 +36,7 @@ public:
     }
 
     friend std::ostream &operator<<(std::ostream &os, const CPU &cpu) {
+        os << "M" << cpu.id_ << ": ";
         for (int i = 0; i < cpu.scheduled_tasks_.GetSize(); i++) {
             const size_t task_id = cpu.scheduled_tasks_[i].GetId();
             const double completion_time = cpu.scheduled_tasks_[i].GetLength();
