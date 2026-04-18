@@ -3,3 +3,5 @@
 //
 
 #include "Task.h"
+
+int Task::global_id = 0;

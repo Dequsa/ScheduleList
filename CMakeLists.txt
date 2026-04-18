@@ -5,4 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(ListScheduling main.cpp
         Task.cpp
-        Task.h)
+        Task.h
+        TaskArray.cpp
+        TaskArray.h)

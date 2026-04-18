@@ -7,12 +7,15 @@
 
 class Task
 {
+    static int global_id;
     int id = 0;
     double length = 0.0;
 public:
-    Task() = default;
+    Task() {
+        id = global_id++;
+    };
 
-    ~Task();
+    ~Task() = default;
 };
 
 #endif // LISTSCHEDULING_TASK_H
