@@ -4,4 +4,4 @@
 
 #include "Task.h"
 
-int Task::global_id = 0;
+int Task::global_id = 1;

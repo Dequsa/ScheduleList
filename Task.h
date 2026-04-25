@@ -29,6 +29,8 @@ public:
 
     double GetLength() const { return length; }
 
+    static size_t GetGlobalMaxId() { return global_id; }
+
     // operators
     friend std::ostream &operator<<(std::ostream &os, const Task &task) {
         os << "Task ID: " << task.id << " | Length: " << task.length;
@@ -40,6 +42,9 @@ public:
     }
 
     bool operator<(const Task &other) const {
+        if (length == other.length) {
+            return id < other.id;
+        }
         return length < other.length;
     }
 };

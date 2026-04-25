@@ -34,6 +34,8 @@ public:
 
     void Delete(const size_t index);
 
+    void DeleteById(const size_t n);
+
     void Insert(const size_t index, const Task &task);
 
     size_t GetSize() const {

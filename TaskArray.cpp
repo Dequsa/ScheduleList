@@ -39,6 +39,19 @@ void TaskArray::Delete(const size_t index) {
     size--;
 }
 
+void TaskArray::DeleteById(const size_t n) {
+    if (n > Task::GetGlobalMaxId()) {
+        return;
+    }
+
+    for (size_t i = 0; i < size; i++) {
+        if (data[i].GetId() == n) {
+            Delete(i);
+            return;
+        }
+    }
+}
+
 void TaskArray::Insert(const size_t index, const Task &task) {
     if (index > size) {
         return;

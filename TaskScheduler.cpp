@@ -5,14 +5,9 @@
 #include "TaskScheduler.h"
 #include "utility.h"
 #include <iostream>
-
 using std::cin, std::cout, std::endl;
 
-bool TaskScheduler::ChooseCommand(TaskArray &task_array) {
-    cin.clear();
-    char cmd = '\0';
-    cin >> cmd;
-
+bool TaskScheduler::ChooseCommand(TaskArray &task_array, const char cmd) {
     switch (cmd) {
         case 'A':
             cin >> cpu_count_;
@@ -40,24 +35,24 @@ bool TaskScheduler::ChooseCommand(TaskArray &task_array) {
             return EXIT_FAILURE;
         default:
             cout << "Invalid command." << endl;
-            return ChooseCommand(task_array);
+            return EXIT_FAILURE;
     }
 }
 
-size_t TaskScheduler::GetTaskCount() const {
+size_t TaskScheduler::GetTaskCount() {
     size_t task_count;
     cin >> task_count;
     return task_count;
 }
 
-double TaskScheduler::GetTaskLength() const {
+double TaskScheduler::GetTaskLength() {
     double task_length;
     cin >> task_length;
     return task_length;
 }
 
-void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray &task_array, double &best_cmax, const int cpu_num) const {
-
+void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray &task_array, double &best_cmax,
+                              const int cpu_num) const {
     // perform the checking if and only if there is no more task in the queue
     if (task_id == task_array.GetSize()) {
         double max = loads[0];
@@ -78,7 +73,6 @@ void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray
 
     // assign tasks to each cpu one by one
     for (int i = 0; i < cpu_num; i++) {
-
         // if cpu_i length + new task is longer then cmax don't search
         if (loads[i] + task_array[task_id].GetLength() >= best_cmax) {
             continue;
@@ -88,7 +82,7 @@ void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray
         loads[i] += task_array[task_id].GetLength();
 
         // just go to another task
-        BackTrack(task_id + 1, loads , task_array, best_cmax, cpu_num);
+        BackTrack(task_id + 1, loads, task_array, best_cmax, cpu_num);
 
         // remove the task from the cpu slot and go assign it to another cpu and do all over again
         loads[i] -= task_array[task_id].GetLength();
@@ -118,8 +112,10 @@ void TaskScheduler::PrintBestCmax(const TaskArray &task_array) const {
 }
 
 void TaskScheduler::SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc[]) const {
+    if (cpu_count_ < 0) return;
+
     for (int i = 0; i < task_array.GetSize(); i++) {
-        int min_idx = cpu_count_ - 1;
+        int min_idx = 0;
         for (int j = 0; j < cpu_count_; j++) {
             if (pc[j].GetAvailability() < pc[min_idx].GetAvailability()) {
                 min_idx = j;
@@ -128,13 +124,14 @@ void TaskScheduler::SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc
         pc[min_idx].ScheduleTask(task_array[i]);
     }
 
+    //TODO CREATE A FUNCTION
     double Cmax = pc[0].GetAvailability();
     double SigmaC = 0;
     for (int i = 0; i < cpu_count_; i++) {
         if (pc[i].GetAvailability() > Cmax) {
             Cmax = pc[i].GetAvailability();
         }
-        SigmaC += pc[i].GetAvailability();
+        SigmaC += pc[i].GetSigmaC();
     }
 
     cout << "Cmax: " << Cmax << '\n';
@@ -168,11 +165,22 @@ void TaskScheduler::LongestProcessingTimeFirstScheduling(const TaskArray &task_a
     }
 
     SchedulePrintTasksToCPUs(LFS, pc);
+
+    delete[] pc;
 }
 
 void TaskScheduler::ShortestProcessingTimeFirstScheduling(const TaskArray &task_array) const {
     // sort the tasks by length in ascending order and run them
     const auto SFS = Utility::QuickSort(task_array, 'A');
+
+    const auto pc = new CPU[cpu_count_];
+    for (int i = 0; i < cpu_count_; i++) {
+        pc[i].SetId(i);
+    }
+
+    SchedulePrintTasksToCPUs(SFS, pc);
+
+    delete[] pc;
 }
 
 void TaskScheduler::RunScheduler() {
@@ -185,16 +193,9 @@ void TaskScheduler::RunScheduler() {
         task_array.PushBack(task);
     }
 
-    while (!ChooseCommand(task_array)) {
-        if (cpu_count_ < 0) {
-            cout << "Invalid CPU count." << endl;
-            continue;
-        }
-
-        // cout << "CPU Count: " << cpu_count_ << endl;
-        // for (size_t i = 0; i < task_array.GetSize(); i++) {
-        //     cout << task_array[i] << endl;
-        // }
+    char cmd = '\0';
+    while (cin >> cmd) {
+        ChooseCommand(task_array, cmd);
     }
 }
 
@@ -203,8 +204,11 @@ void TaskScheduler::AddTask(TaskArray &tasks) {
     size_t i = 0;
     cin >> i >> l;
     const Task task{l};
-    tasks.Insert(i, task);
+    tasks.Insert(i - 1, task);
 }
 
 void TaskScheduler::RemoveTask(TaskArray &tasks) {
+    size_t i = 0;
+    cin >> i;
+    tasks.DeleteById(i);
 }

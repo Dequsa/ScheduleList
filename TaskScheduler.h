@@ -11,13 +11,11 @@ class TaskScheduler {
 
     int cpu_count_ = 0;
 
-    bool ChooseCommand(TaskArray &task_array);
+    bool ChooseCommand(TaskArray &task_array, const char cmd);
 
-    void GetCommandParameters();
+    static size_t GetTaskCount();
 
-    size_t GetTaskCount() const;
-
-    double GetTaskLength() const;
+    static double GetTaskLength();
 
     void SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc[]) const;
 
@@ -37,9 +35,9 @@ public:
 
     void RunScheduler();
 
-    void AddTask(TaskArray &tasks);
+    static void AddTask(TaskArray &tasks);
 
-    void RemoveTask(TaskArray &tasks);
+    static void RemoveTask(TaskArray &tasks);
 };
 
 

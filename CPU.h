@@ -18,10 +18,10 @@ public:
 
     ~CPU() = default;
 
-    void ScheduleTask(const Task task);
+    void ScheduleTask(const Task &task);
 
     // getters
-    int GetAvailability() const { return available_in_; }
+    double GetAvailability() const { return available_in_; }
 
     double GetSigmaC() const { return SigmaC_; }
 
@@ -36,12 +36,12 @@ public:
     }
 
     friend std::ostream &operator<<(std::ostream &os, const CPU &cpu) {
-        os << "M" << cpu.id_ << ": ";
+        os << "M" << cpu.id_ + 1 << ":";
+        double task_completed_in = 0;
         for (int i = 0; i < cpu.scheduled_tasks_.GetSize(); i++) {
             const size_t task_id = cpu.scheduled_tasks_[i].GetId();
-            const double completion_time = cpu.scheduled_tasks_[i].GetLength();
-
-            os << "( C" << task_id << " = " << completion_time << " )";
+            task_completed_in += cpu.scheduled_tasks_[i].GetLength();
+            os << "( C" << task_id << " = " << task_completed_in << " )";
         }
         return os;
     }
