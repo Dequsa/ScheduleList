@@ -11,7 +11,7 @@ class TaskScheduler {
 
     int cpu_count_ = 0;
 
-    bool ChooseCommand(const TaskArray &task_array);
+    bool ChooseCommand(TaskArray &task_array);
 
     void GetCommandParameters();
 
@@ -21,7 +21,9 @@ class TaskScheduler {
 
     void SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc[]) const;
 
-    double BestCMax(const TaskArray &task_array) const;
+    void BackTrack( const int task_id, double loads[], const TaskArray &task_array, double &best_cmax, const int cpu_num) const;
+    double FindBestCMax(const TaskArray &task_array) const;
+    void PrintBestCmax(const TaskArray &task_array) const;
 
     void BasicListScheduling(const TaskArray &task_array) const;
 
@@ -35,9 +37,9 @@ public:
 
     void RunScheduler();
 
-    void AddTask(const TaskArray &tasks);
+    void AddTask(TaskArray &tasks);
 
-    void RemoveTask(const TaskArray &tasks);
+    void RemoveTask(TaskArray &tasks);
 };
 
 

@@ -6,10 +6,10 @@
 
 void TaskArray::Resize() {
     // if 1 then 2, if 2 then 4, if 4 then 8, etc.
-    size_t new_capacity = capacity == 0 ? 1 : capacity * 2;
+    const size_t new_capacity = capacity == 0 ? 1 : capacity * 2;
 
     // copy all the data to the new array
-    Task *new_data = new Task[new_capacity];
+    const auto new_data = new Task[new_capacity];
     for (size_t i = 0; i < size; i++) {
         new_data[i] = data[i];
     }
