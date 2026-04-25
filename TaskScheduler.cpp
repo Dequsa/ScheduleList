@@ -51,8 +51,7 @@ double TaskScheduler::GetTaskLength() {
     return task_length;
 }
 
-void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray &task_array, double &best_cmax,
-                              const int cpu_num) const {
+void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray &task_array, double &best_cmax, const int cpu_num) const {
     // perform the checking if and only if there is no more task in the queue
     if (task_id == task_array.GetSize()) {
         double max = loads[0];
@@ -73,6 +72,7 @@ void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray
 
     // assign tasks to each cpu one by one
     for (int i = 0; i < cpu_num; i++) {
+
         // if cpu_i length + new task is longer then cmax don't search
         if (loads[i] + task_array[task_id].GetLength() >= best_cmax) {
             continue;
@@ -95,7 +95,7 @@ double TaskScheduler::FindBestCMax(const TaskArray &task_array) const {
     double best_cmax = 0.0;
 
     // make Cmax length of all tasks so it is larger than the largest task from the list
-    for (int i = 0; i < task_array.GetSize(); i++) {
+    for (size_t i = 0; i < task_array.GetSize(); i++) {
         best_cmax += task_array[i].GetLength();
     }
 
@@ -111,20 +111,33 @@ void TaskScheduler::PrintBestCmax(const TaskArray &task_array) const {
     cout << "Copt: " << Copt << '\n';
 }
 
-void TaskScheduler::SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc[]) const {
+void TaskScheduler::LowestUsageCPUFirst(const TaskArray &task_array, CPU pc[]) const {
     if (cpu_count_ < 0) return;
 
-    for (int i = 0; i < task_array.GetSize(); i++) {
+    for (size_t i = 0; i < task_array.GetSize(); i++) {
+
         int min_idx = 0;
+
         for (int j = 0; j < cpu_count_; j++) {
             if (pc[j].GetAvailability() < pc[min_idx].GetAvailability()) {
                 min_idx = j;
             }
         }
+
         pc[min_idx].ScheduleTask(task_array[i]);
     }
+}
 
-    //TODO CREATE A FUNCTION
+void TaskScheduler::RoundRobinAssign(const TaskArray &task_array, CPU pc[]) const {
+    if (cpu_count_ < 0) return;
+
+    // assign task to CPUs 1 2 3 4 1 2 3 4 1 2 ...
+    for (size_t i = 0; i < task_array.GetSize(); i++) {
+        pc[i % cpu_count_].ScheduleTask(task_array[i]);
+    }
+}
+
+void TaskScheduler::PrintCPUs(const CPU pc[]) const {
     double Cmax = pc[0].GetAvailability();
     double SigmaC = 0;
     for (int i = 0; i < cpu_count_; i++) {
@@ -150,7 +163,8 @@ void TaskScheduler::BasicListScheduling(const TaskArray &task_array) const {
         pc[i].SetId(i);
     }
 
-    SchedulePrintTasksToCPUs(task_array, pc);
+    LowestUsageCPUFirst(task_array, pc);
+    PrintCPUs(pc);
 
     delete[] pc;
 }
@@ -164,21 +178,30 @@ void TaskScheduler::LongestProcessingTimeFirstScheduling(const TaskArray &task_a
         pc[i].SetId(i);
     }
 
-    SchedulePrintTasksToCPUs(LFS, pc);
+    LowestUsageCPUFirst(LFS, pc);
+    PrintCPUs(pc);
 
     delete[] pc;
 }
 
 void TaskScheduler::ShortestProcessingTimeFirstScheduling(const TaskArray &task_array) const {
     // sort the tasks by length in ascending order and run them
-    const auto SFS = Utility::QuickSort(task_array, 'A');
+    const auto SFS = Utility::QuickSort(task_array, 'D');
 
     const auto pc = new CPU[cpu_count_];
     for (int i = 0; i < cpu_count_; i++) {
         pc[i].SetId(i);
     }
 
-    SchedulePrintTasksToCPUs(SFS, pc);
+    RoundRobinAssign(SFS, pc);
+
+    for (size_t i = 0; i < cpu_count_; i++) {
+        // sort in non-increasing order
+        pc[i].SortExecutionOrder('A');
+        pc[i].ReCalculateSigmaC();
+    }
+
+    PrintCPUs(pc);
 
     delete[] pc;
 }

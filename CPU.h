@@ -20,6 +20,10 @@ public:
 
     void ScheduleTask(const Task &task);
 
+    void SortExecutionOrder(const char order);
+
+    void ReCalculateSigmaC();
+
     // getters
     double GetAvailability() const { return available_in_; }
 

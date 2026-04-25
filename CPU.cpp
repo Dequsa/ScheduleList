@@ -3,10 +3,25 @@
 //
 
 #include "CPU.h"
+#include "utility.h"
 
 void CPU::ScheduleTask(const Task &task) {
     scheduled_tasks_.PushBack(task);
     available_in_ += task.GetLength();
     SigmaC_ += available_in_;
+}
+
+void CPU::SortExecutionOrder(const char order) {
+    scheduled_tasks_ = Utility::QuickSort(scheduled_tasks_, order);
+}
+
+void CPU::ReCalculateSigmaC() {
+    available_in_ = 0;
+    SigmaC_ = 0;
+    for (size_t i = 0; i < scheduled_tasks_.GetSize(); i++) {
+        const Task &task = scheduled_tasks_[i];
+        available_in_ += task.GetLength();
+        SigmaC_ += available_in_;
+    }
 }
 

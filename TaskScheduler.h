@@ -17,7 +17,11 @@ class TaskScheduler {
 
     static double GetTaskLength();
 
-    void SchedulePrintTasksToCPUs(const TaskArray &task_array, CPU pc[]) const;
+    void LowestUsageCPUFirst(const TaskArray &task_array, CPU pc[]) const;
+
+    void RoundRobinAssign(const TaskArray &task_array, CPU pc[]) const;
+
+    void PrintCPUs(const CPU pc[]) const;
 
     void BackTrack( const int task_id, double loads[], const TaskArray &task_array, double &best_cmax, const int cpu_num) const;
     double FindBestCMax(const TaskArray &task_array) const;
