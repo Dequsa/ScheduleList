@@ -24,7 +24,13 @@ void TaskArray::PushBack(const Task &task) {
     if (size >= capacity) {
         Resize();
     }
+
+    if (task.GetLength() > largest_task_length) {
+        largest_task_length = task.GetLength();
+    }
+
     data[size++] = task;
+    total_length += task.GetLength();
 }
 
 void TaskArray::Delete(const size_t index) {
@@ -32,8 +38,15 @@ void TaskArray::Delete(const size_t index) {
         return;
     }
 
+    total_length -= data[index].GetLength();
+    if (data[index].GetLength() == largest_task_length) {
+        largest_task_length = 0;
+    }
+
     // shift all the elements after the index to the left
     for (size_t i = index; i < size - 1; i++) {
+        if (data[i].GetLength() > largest_task_length) largest_task_length = data[i].GetLength();
+
         data[i] = data[i + 1];
     }
     size--;
@@ -66,6 +79,11 @@ void TaskArray::Insert(const size_t index, const Task &task) {
         data[i] = data[i - 1];
     }
 
+    if (task.GetLength() > largest_task_length) {
+        largest_task_length = task.GetLength();
+    }
+
     data[index] = task;
+    total_length += task.GetLength();
     size++;
 }

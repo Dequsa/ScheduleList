@@ -25,6 +25,10 @@ bool TaskScheduler::ChooseCommand(TaskArray &task_array, const char cmd) {
             cin >> cpu_count_;
             ShortestProcessingTimeFirstScheduling(task_array);
             return EXIT_SUCCESS;
+        case 'M':
+            cin >> cpu_count_;
+            McNaughton(task_array);
+            return EXIT_SUCCESS;
         case '+':
             AddTask(task_array);
             return EXIT_SUCCESS;
@@ -51,7 +55,8 @@ double TaskScheduler::GetTaskLength() {
     return task_length;
 }
 
-void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray &task_array, double &best_cmax, const int cpu_num) const {
+void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray &task_array, double &best_cmax,
+                              const int cpu_num) const {
     // perform the checking if and only if there is no more task in the queue
     if (task_id == task_array.GetSize()) {
         double max = loads[0];
@@ -72,7 +77,6 @@ void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray
 
     // assign tasks to each cpu one by one
     for (int i = 0; i < cpu_num; i++) {
-
         // if cpu_i length + new task is longer then cmax don't search
         if (loads[i] + task_array[task_id].GetLength() >= best_cmax) {
             continue;
@@ -115,7 +119,6 @@ void TaskScheduler::LowestUsageCPUFirst(const TaskArray &task_array, CPU pc[]) c
     if (cpu_count_ < 0) return;
 
     for (size_t i = 0; i < task_array.GetSize(); i++) {
-
         int min_idx = 0;
 
         for (int j = 0; j < cpu_count_; j++) {
@@ -204,6 +207,53 @@ void TaskScheduler::ShortestProcessingTimeFirstScheduling(const TaskArray &task_
     PrintCPUs(pc);
 
     delete[] pc;
+}
+
+void TaskScheduler::McNaughton(const TaskArray &task_array) const {
+    TaskArray t_arr = task_array;
+    const auto pc = new CPU[cpu_count_];
+    for (int i = 0; i < cpu_count_; i++) {
+        pc[i].SetId(i);
+    }
+
+    double Cmax = 0;
+
+    if (t_arr.GetTotalLength() / cpu_count_ > t_arr.GetLargestLengthTask()) {
+        Cmax = t_arr.GetTotalLength() / cpu_count_;
+    } else {
+        Cmax = t_arr.GetLargestLengthTask();
+    }
+
+    double t = 0;
+    int i = 0;
+    int j = 0;
+
+    while (j < t_arr.GetSize()) {
+        if (t + t_arr[j].GetLength() <= Cmax) {
+            pc[i].ScheduleSegment(t_arr[j], t, t + t_arr[j].GetLength());
+            t = t + t_arr[j].GetLength();
+            j++;
+
+            if (t == Cmax) {
+                t = 0;
+                i++;
+                if (i == cpu_count_) { break; }
+            }
+        } else {
+            pc[i].ScheduleSegment(t_arr[j], t, Cmax);
+            t_arr[j].DecreaseLength(Cmax - t);
+            t = 0;
+            i++;
+
+            if (i >= cpu_count_) {
+                break;
+            }
+        }
+    }
+
+    PrintCPUs(pc);
+
+    delete []pc;
 }
 
 void TaskScheduler::RunScheduler() {

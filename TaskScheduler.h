@@ -32,6 +32,8 @@ class TaskScheduler {
     void LongestProcessingTimeFirstScheduling(const TaskArray &task_array) const;
 
     void ShortestProcessingTimeFirstScheduling(const TaskArray &task_array) const;
+
+    void McNaughton(const TaskArray &task_array) const;
 public:
     TaskScheduler() = default;
 

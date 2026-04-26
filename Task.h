@@ -13,9 +13,11 @@ class Task {
     double length = 0.0;
 
 public:
-    Task(const double task_length) : length(task_length) { id = global_id++; };
+    Task(const double task_length) : length(task_length) { id = global_id++; }
 
-    Task() = default;
+    Task(const double task_length, const int id) : id(id), length(task_length) {}
+
+    Task() : id(0), length(0.0) {};
 
     ~Task() = default;
 
@@ -23,6 +25,8 @@ public:
     void SetLength(double new_length) { length = new_length; }
 
     void SetId(int new_id) { id = new_id; }
+
+    void DecreaseLength(double n) { length -= n; }
 
     // getters
     int GetId() const { return id; }
@@ -46,6 +50,12 @@ public:
             return id < other.id;
         }
         return length < other.length;
+    }
+
+    Task &operator=(const Task &other) {
+        id = other.id;
+        length = other.length;
+        return *this;
     }
 };
 

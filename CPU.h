@@ -6,7 +6,6 @@
 #define LISTSCHEDULING_CPU_H
 #include "TaskArray.h"
 
-
 class CPU {
     int id_ = 0;
     double available_in_ = 0;
@@ -14,11 +13,16 @@ class CPU {
     TaskArray scheduled_tasks_;
 
 public:
-    CPU() = default;
+    CPU() : id_(0), available_in_(0), SigmaC_(0), scheduled_tasks_(1) {
+    }
+
+    CPU(const CPU &other) : id_(other.id_), available_in_(other.available_in_), SigmaC_(other.SigmaC_), scheduled_tasks_(other.scheduled_tasks_) {}
 
     ~CPU() = default;
 
     void ScheduleTask(const Task &task);
+
+    void ScheduleSegment(const Task &task, const double start, const double end);
 
     void SortExecutionOrder(const char order);
 
@@ -33,9 +37,13 @@ public:
     void SetId(const int id) { id_ = id; };
 
     // operators
-    CPU &operator=(CPU *cpu) {
-        available_in_ = cpu->available_in_;
-        scheduled_tasks_ = cpu->scheduled_tasks_;
+    CPU &operator=(const CPU &cpu) {
+        // std::cerr << "CPU operator= called" << '\n';
+        if (this == &cpu) return *this;
+        id_ = cpu.id_;
+        SigmaC_ = cpu.SigmaC_;
+        available_in_ = cpu.available_in_;
+        scheduled_tasks_ = cpu.scheduled_tasks_;
         return *this;
     }
 

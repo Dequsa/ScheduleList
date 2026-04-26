@@ -10,16 +10,27 @@
 class TaskArray {
     size_t capacity = 0;
     size_t size = 0;
+    double total_length = 0;
+    double largest_task_length = 0;
     Task *data = nullptr;
 
     void Resize();
 
 public:
-    TaskArray() = default;
+    TaskArray(): capacity(5), size(0), total_length(0), largest_task_length(0), data(new Task[5]) {
+        // std::cerr << "TaskArray() called this=" << this << '\n';
+    }
+
+    TaskArray(const size_t n) : capacity(n), size(0), total_length(0), largest_task_length(0) {
+        // std::cerr << "TaskArray(n) called with n=" << n << " this=" << this << '\n';
+        data = new Task[n];
+    }
 
     TaskArray(const TaskArray &other) {
         capacity = other.capacity;
         size = other.size;
+        total_length = other.total_length;
+        largest_task_length = other.largest_task_length;
         data = new Task[capacity];
         for (size_t i = 0; i < size; i++) {
             data[i] = other.data[i];
@@ -42,6 +53,10 @@ public:
         return size;
     }
 
+    double GetTotalLength() const { return total_length; }
+
+    double GetLargestLengthTask() const { return largest_task_length; }
+
     // operators
 
     Task &operator[](const size_t index) {
@@ -61,6 +76,7 @@ public:
 
         capacity = other.capacity;
         size = other.size;
+        total_length = other.total_length;
         data = new Task[capacity];
         for (size_t i = 0; i < size; i++) {
             data[i] = other.data[i];
