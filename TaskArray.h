@@ -17,12 +17,10 @@ class TaskArray {
     void Resize();
 
 public:
-    TaskArray(): capacity(5), size(0), total_length(0), largest_task_length(0), data(new Task[5]) {
-        // std::cerr << "TaskArray() called this=" << this << '\n';
+    TaskArray(): capacity(5), data(new Task[5]) {
     }
 
-    TaskArray(const size_t n) : capacity(n), size(0), total_length(0), largest_task_length(0) {
-        // std::cerr << "TaskArray(n) called with n=" << n << " this=" << this << '\n';
+    explicit TaskArray(const size_t n) : capacity(n) {
         data = new Task[n];
     }
 
@@ -45,7 +43,7 @@ public:
 
     void Delete(const size_t index);
 
-    void DeleteById(const size_t n);
+    void DeleteById(const int n);
 
     void Insert(const size_t index, const Task &task);
 

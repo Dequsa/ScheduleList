@@ -16,13 +16,15 @@ public:
     CPU() : id_(0), available_in_(0), SigmaC_(0), scheduled_tasks_(1) {
     }
 
-    CPU(const CPU &other) : id_(other.id_), available_in_(other.available_in_), SigmaC_(other.SigmaC_), scheduled_tasks_(other.scheduled_tasks_) {}
+    CPU(const CPU &other) : id_(other.id_), available_in_(other.available_in_), SigmaC_(other.SigmaC_),
+                            scheduled_tasks_(other.scheduled_tasks_) {
+    }
 
     ~CPU() = default;
 
     void ScheduleTask(const Task &task);
 
-    void ScheduleSegment(const Task &task, const double start, const double end);
+    void ScheduleSegment(const Task &task, const double start, const double end, const bool is_remainder);
 
     void SortExecutionOrder(const char order);
 
@@ -35,6 +37,8 @@ public:
 
     // setters
     void SetId(const int id) { id_ = id; };
+
+    void AddSigmaC(const double S) { SigmaC_ += S; }
 
     // operators
     CPU &operator=(const CPU &cpu) {
@@ -50,10 +54,15 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const CPU &cpu) {
         os << "M" << cpu.id_ + 1 << ":";
         double task_completed_in = 0;
-        for (int i = 0; i < cpu.scheduled_tasks_.GetSize(); i++) {
+        for (size_t i = 0; i < cpu.scheduled_tasks_.GetSize(); i++) {
             const size_t task_id = cpu.scheduled_tasks_[i].GetId();
             task_completed_in += cpu.scheduled_tasks_[i].GetLength();
-            os << "( C" << task_id << " = " << task_completed_in << " )";
+
+            if (cpu.scheduled_tasks_[i].IsRemainder()) {
+                os << "( P" << task_id << " = " << task_completed_in << " )";
+            } else {
+                os << "( C" << task_id << " = " << task_completed_in << " )";
+            }
         }
         return os;
     }

@@ -39,20 +39,28 @@ void TaskArray::Delete(const size_t index) {
     }
 
     total_length -= data[index].GetLength();
+
+    // check if it was the biggest element in the array
     if (data[index].GetLength() == largest_task_length) {
-        largest_task_length = 0;
+        largest_task_length = -1.0;
     }
 
     // shift all the elements after the index to the left
     for (size_t i = index; i < size - 1; i++) {
-        if (data[i].GetLength() > largest_task_length) largest_task_length = data[i].GetLength();
-
         data[i] = data[i + 1];
     }
     size--;
+
+    if (largest_task_length == -1.0) {
+        for (size_t i = 0; i < size; i ++) {
+            if (data[i].GetLength() > largest_task_length) {
+                largest_task_length = data[i].GetLength();
+            }
+        }
+    }
 }
 
-void TaskArray::DeleteById(const size_t n) {
+void TaskArray::DeleteById(const int n) {
     if (n > Task::GetGlobalMaxId()) {
         return;
     }

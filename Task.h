@@ -11,13 +11,16 @@ class Task {
     static int global_id;
     int id = 0;
     double length = 0.0;
+    bool is_remainder = false;
 
 public:
-    Task(const double task_length) : length(task_length) { id = global_id++; }
+    explicit Task(const double task_length) : length(task_length) { id = global_id++; }
 
     Task(const double task_length, const int id) : id(id), length(task_length) {}
 
-    Task() : id(0), length(0.0) {};
+    Task(const Task &other) = default;
+
+    Task()= default;
 
     ~Task() = default;
 
@@ -28,12 +31,16 @@ public:
 
     void DecreaseLength(double n) { length -= n; }
 
+    void SetRemainderFlag( const bool what) { is_remainder = what; }
+
     // getters
     int GetId() const { return id; }
 
     double GetLength() const { return length; }
 
     static size_t GetGlobalMaxId() { return global_id; }
+
+    bool IsRemainder() const { return is_remainder; }
 
     // operators
     friend std::ostream &operator<<(std::ostream &os, const Task &task) {
@@ -55,6 +62,7 @@ public:
     Task &operator=(const Task &other) {
         id = other.id;
         length = other.length;
+        is_remainder = other.is_remainder;
         return *this;
     }
 };

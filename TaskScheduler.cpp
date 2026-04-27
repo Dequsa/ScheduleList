@@ -58,7 +58,7 @@ double TaskScheduler::GetTaskLength() {
 void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray &task_array, double &best_cmax,
                               const int cpu_num) const {
     // perform the checking if and only if there is no more task in the queue
-    if (task_id == task_array.GetSize()) {
+    if (task_id == static_cast<int>(task_array.GetSize())) {
         double max = loads[0];
 
         // look for highest loaded cpu task
@@ -198,7 +198,7 @@ void TaskScheduler::ShortestProcessingTimeFirstScheduling(const TaskArray &task_
 
     RoundRobinAssign(SFS, pc);
 
-    for (size_t i = 0; i < cpu_count_; i++) {
+    for (int i = 0; i < cpu_count_; i++) {
         // sort in non-increasing order
         pc[i].SortExecutionOrder('A');
         pc[i].ReCalculateSigmaC();
@@ -226,25 +226,34 @@ void TaskScheduler::McNaughton(const TaskArray &task_array) const {
 
     double t = 0;
     int i = 0;
-    int j = 0;
+    size_t j = 0;
+    bool is_reminder = false;
 
     while (j < t_arr.GetSize()) {
         if (t + t_arr[j].GetLength() <= Cmax) {
-            pc[i].ScheduleSegment(t_arr[j], t, t + t_arr[j].GetLength());
+            pc[i].ScheduleSegment(t_arr[j], t, t + t_arr[j].GetLength(), is_reminder);
             t = t + t_arr[j].GetLength();
+
+            if (!is_reminder) {
+                pc[i].AddSigmaC(t);
+            } else {
+                is_reminder = false;
+            }
+
             j++;
 
             if (t == Cmax) {
                 t = 0;
                 i++;
-                if (i == cpu_count_) { break; }
+                if (i >= cpu_count_) { break; }
             }
         } else {
-            pc[i].ScheduleSegment(t_arr[j], t, Cmax);
+            pc[i].ScheduleSegment(t_arr[j], t, Cmax, false);
+            pc[i].AddSigmaC(Cmax);
             t_arr[j].DecreaseLength(Cmax - t);
             t = 0;
             i++;
-
+            is_reminder = true;
             if (i >= cpu_count_) {
                 break;
             }

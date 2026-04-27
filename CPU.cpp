@@ -11,12 +11,16 @@ void CPU::ScheduleTask(const Task &task) {
     SigmaC_ += available_in_;
 }
 
-void CPU::ScheduleSegment(const Task &task, const double start, const double end) {
-    const Task t(end - start, task.GetLength());
+void CPU::ScheduleSegment(const Task &task, const double start, const double end, const bool is_remainder) {
+    const double length = end - start;
+    Task t(length, task.GetId());
+
+    t.SetRemainderFlag(is_remainder);
+
     scheduled_tasks_.PushBack(t);
 
     available_in_ = end;
-    SigmaC_ += available_in_;
+    // SigmaC_ += available_in_;
 }
 
 void CPU::SortExecutionOrder(const char order) {
