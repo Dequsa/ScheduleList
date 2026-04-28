@@ -69,7 +69,7 @@ void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray
         }
 
         if (max < best_cmax) {
-            // best cmax is the longest because cpu can't compute faster than 100% speed
+            // best cmax is the longest CPU queue time
             best_cmax = max;
         }
         return;
@@ -77,7 +77,7 @@ void TaskScheduler::BackTrack(const int task_id, double loads[], const TaskArray
 
     // assign tasks to each cpu one by one
     for (int i = 0; i < cpu_num; i++) {
-        // if cpu_i length + new task is longer then cmax don't search
+        // if cpu_i length + new task is longer then cmax don't search further
         if (loads[i] + task_array[task_id].GetLength() >= best_cmax) {
             continue;
         }
@@ -188,7 +188,7 @@ void TaskScheduler::LongestProcessingTimeFirstScheduling(const TaskArray &task_a
 }
 
 void TaskScheduler::ShortestProcessingTimeFirstScheduling(const TaskArray &task_array) const {
-    // sort the tasks by length in ascending order and run them
+    // sort the tasks by length in non-increasing order and assign them
     const auto SFS = Utility::QuickSort(task_array, 'D');
 
     const auto pc = new CPU[cpu_count_];
@@ -199,7 +199,7 @@ void TaskScheduler::ShortestProcessingTimeFirstScheduling(const TaskArray &task_
     RoundRobinAssign(SFS, pc);
 
     for (int i = 0; i < cpu_count_; i++) {
-        // sort in non-increasing order
+        // sort in shortest time first order
         pc[i].SortExecutionOrder('A');
         pc[i].ReCalculateSigmaC();
     }
@@ -224,16 +224,20 @@ void TaskScheduler::McNaughton(const TaskArray &task_array) const {
         Cmax = t_arr.GetLargestLengthTask();
     }
 
-    double t = 0;
-    int i = 0;
-    size_t j = 0;
+    double t = 0;               // CURRENT LOAD TIME (for CPU)
+    int i = 0;                  // current cpu index
+    size_t j = 0;               // current task index
     bool is_reminder = false;
 
     while (j < t_arr.GetSize()) {
+        // check if current task would fit in the cpu "optimal" max load
         if (t + t_arr[j].GetLength() <= Cmax) {
             pc[i].ScheduleSegment(t_arr[j], t, t + t_arr[j].GetLength(), is_reminder);
+
+            // update current load of the cpu
             t = t + t_arr[j].GetLength();
 
+            // don't count sigma c for this cpu if it's a reminder to avoid double counting
             if (!is_reminder) {
                 pc[i].AddSigmaC(t);
             } else {
@@ -242,21 +246,23 @@ void TaskScheduler::McNaughton(const TaskArray &task_array) const {
 
             j++;
 
+            // if it fits perfectly than we just go to next processor
             if (t == Cmax) {
                 t = 0;
                 i++;
                 if (i >= cpu_count_) { break; }
             }
         } else {
+            // assign the rest of the task when it needs to be interrupted
             pc[i].ScheduleSegment(t_arr[j], t, Cmax, false);
             pc[i].AddSigmaC(Cmax);
             t_arr[j].DecreaseLength(Cmax - t);
             t = 0;
             i++;
+
+            // the task switches processors so it's a reminder
             is_reminder = true;
-            if (i >= cpu_count_) {
-                break;
-            }
+            if (i >= cpu_count_) { break; }
         }
     }
 
@@ -269,6 +275,7 @@ void TaskScheduler::RunScheduler() {
     const auto task_count = GetTaskCount();
 
     TaskArray task_array;
+
 
     for (size_t i = 0; i < task_count; i++) {
         Task task(GetTaskLength());
